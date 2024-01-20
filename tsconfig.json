@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "outDir": "./built",
+    "module": "nodenext",
+    "target": "es2017"
+  },
+  "include": ["./src/**/*"]
+}
