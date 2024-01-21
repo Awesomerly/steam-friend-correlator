@@ -1,5 +1,3 @@
-// import Router from "@koa/router";
-// import zodRouter from "koa-zod-router";
 import Router from "@koa/router";
 import bodyParser from "koa-bodyparser";
 import { z, ZodError } from "zod";
@@ -7,7 +5,6 @@ import * as steam from "./steam-api/steam.js";
 import type { Context, Next } from "koa";
 import { ValidationError } from "./utils.js";
 import * as schema from "./steam-api/schema.js";
-// import type { Context, Next } from "koa";
 
 async function errorHandler(ctx: Context, next: Next) {
   try {

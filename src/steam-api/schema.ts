@@ -36,21 +36,12 @@ export const FriendsResponseSchema = z.object({
       message: "User does not have public friends.",
     }),
 });
-// const literalSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
-// type Literal = z.infer<typeof literalSchema>;
-export type UserSummaryResponse = z.infer<typeof UserSummaryResponseSchema>;
 
 export const UserSummaryResponseSchema = z.object({
   response: z.object({
     players: z
       .object({
         steamid: z.string(),
-        // personaname: z.string(),
-        // profileurl: z.string(),
-        // avatarfull: z.string(),
-        // personastate: z.number(),
-        // communityvisibilitystate: z.number(),
-        // lastlogoff: z.number(),
       })
       .passthrough()
       .array(),
