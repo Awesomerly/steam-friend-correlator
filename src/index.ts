@@ -1,18 +1,19 @@
 import Koa from "koa";
-import { getFriends, resolveVanity, getUserSummaries } from "./steam.js";
+import * as steam from "./steam.js";
 
 const app = new Koa();
 
 app.use(async (ctx) => {
-  let counts = {};
-  let blah = await resolveVanity("Sparkles2dig");
-  let blah2 = await resolveVanity("SparklesYT");
+  let counts: { [key: string]: number } = {};
+  let blah = await steam.resolveVanity("Sparkles2dig");
+  let blah2 = await steam.resolveVanity("SparklesYT");
+  console.log(blah, blah2);
   let targetList: Array<string> = [blah, blah2];
 
   for (let targetId of targetList) {
-    let friends = await getFriends(targetId);
+    let friends = await steam.getFriends(targetId);
 
-    friends.forEach((id: number) => {
+    friends.forEach((id: string) => {
       counts[id] ? counts[id]++ : (counts[id] = 1);
     });
   }

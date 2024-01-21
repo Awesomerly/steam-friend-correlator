@@ -1,8 +1,7 @@
 {
+  "extends": "@tsconfig/node-lts/tsconfig.json",
   "compilerOptions": {
-    "outDir": "./built",
-    "module": "nodenext",
-    "target": "es2017"
+    "outDir": "./built"
   },
   "include": ["./src/**/*"]
 }
