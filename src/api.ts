@@ -6,7 +6,7 @@ import { z, ZodError } from "zod";
 import * as steam from "./steam-api/steam.js";
 import type { Context, Next } from "koa";
 import { ValidationError } from "./utils.js";
-// import { SteamID64Schema } from "./steam-api/schema.js";
+import { SteamID64Schema } from "./steam-api/schema.js";
 // import type { Context, Next } from "koa";
 
 async function errorHandler(ctx: Context, next: Next) {
@@ -40,8 +40,8 @@ async function cheekyMiddleware(ctx: Context, next: Next) {
 export const router = new Router();
 router.prefix("/api");
 router.use(errorHandler);
-router.use(cheekyMiddleware);
 router.use(bodyParser());
+router.use(cheekyMiddleware);
 
 // TODO: make another handler to turn the errors into something nicer looking :3
 
@@ -51,7 +51,6 @@ const vanityReqSchema = z.object({
     .min(3, "Custom URL name too short")
     .max(32, "Custom URL name too long"),
 });
-
 router.get("/id", async (ctx, next) => {
   console.log(ctx.request);
   const { id } = vanityReqSchema.parse(ctx.request.body);
@@ -61,14 +60,34 @@ router.get("/id", async (ctx, next) => {
 
 // TODO: how is this going to work? maybe when I'm less tired...
 const friendsSchema = z.object({
-  steamids: z
-    .string()
-    .array()
-    .nonempty("Hey man put stuff in ur array pls tysm :3"),
+  steamids: z.string().array(),
+  // .nonempty("Hey man put stuff in ur array pls tysm :3"),
 });
 router.get("/friends", async (ctx, next) => {
+  console.log(ctx.request.body);
   const { steamids } = friendsSchema.parse(ctx.request.body);
-  // const parsedIds: { [key: string]: string } = {};
-  // steamids.forEach((id) => parsedIds[entry]);
-  ctx.body = { steamids };
+  const parsedIds: { [key: string]: object } = {};
+
+  for (let id of steamids) {
+    try {
+      let parseResult = SteamID64Schema.parse(id);
+      let friendResult = await steam.getFriends(parseResult);
+      parsedIds[id] = { success: true, friends: friendResult };
+    } catch (err) {
+      if (err instanceof ZodError) {
+        parsedIds[id] = {
+          success: false,
+          errors: err.errors.map((err) => {
+            return { code: err.code, message: err.message };
+          }),
+        };
+      } else {
+        parsedIds[id] = {
+          success: false,
+          errors: [{ code: "unk", error: "Unknown parsing error" }],
+        };
+      }
+    }
+  }
+  ctx.body = { steamids: parsedIds };
 });
