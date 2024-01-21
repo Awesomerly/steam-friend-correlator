@@ -66,26 +66,26 @@ const friendsSchema = z.object({
 router.get("/friends", async (ctx, next) => {
   console.log(ctx.request.body);
   const { steamids } = friendsSchema.parse(ctx.request.body);
-  const parsedIds: { [key: string]: object } = {};
+  const parsedIds: Array<object> = [];
 
   for (let id of steamids) {
     try {
       let parseResult = SteamID64Schema.parse(id);
       let friendResult = await steam.getFriends(parseResult);
-      parsedIds[id] = { success: true, friends: friendResult };
+      parsedIds.push({ success: true, friends: friendResult });
     } catch (err) {
       if (err instanceof ZodError) {
-        parsedIds[id] = {
+        parsedIds.push({
           success: false,
           errors: err.errors.map((err) => {
             return { code: err.code, message: err.message };
           }),
-        };
+        });
       } else {
-        parsedIds[id] = {
+        parsedIds.push({
           success: false,
           errors: [{ code: "unk", error: "Unknown parsing error" }],
-        };
+        });
       }
     }
   }
