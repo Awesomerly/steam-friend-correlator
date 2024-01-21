@@ -7,7 +7,6 @@ app.use(async (ctx) => {
   let counts: { [key: string]: number } = {};
   let blah = await steam.resolveVanity("Sparkles2dig");
   let blah2 = await steam.resolveVanity("SparklesYT");
-  console.log(blah, blah2);
   let targetList: Array<string> = [blah, blah2];
 
   for (let targetId of targetList) {

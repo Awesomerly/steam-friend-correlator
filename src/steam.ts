@@ -73,7 +73,6 @@ export async function getUserSummaries(idArr: Array<string>) {
       throw new ValidationError(400, "Unable to parse json response");
     });
   let validated = schema.UserSummarySchema.parse(resp).response.players;
-  console.log(validated);
   let obj: { [key: string]: object } = {};
   validated.forEach((entry) => {
     obj[entry.steamid] = entry;
