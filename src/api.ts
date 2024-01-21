@@ -6,7 +6,7 @@ import { z, ZodError } from "zod";
 import * as steam from "./steam-api/steam.js";
 import type { Context, Next } from "koa";
 import { ValidationError } from "./utils.js";
-import { SteamID64Schema } from "./steam-api/schema.js";
+import * as schema from "./steam-api/schema.js";
 // import type { Context, Next } from "koa";
 
 async function errorHandler(ctx: Context, next: Next) {
@@ -18,15 +18,17 @@ async function errorHandler(ctx: Context, next: Next) {
     let errorBody: { [key: string]: object } = {};
     if (err instanceof ZodError) {
       errorBody.errors = err.errors.map((err) => {
-        return { code: err.code, message: err.message };
+        return { code: err.code, message: err.message, path: err.path };
       });
     } else if (err instanceof ValidationError) {
       ctx.status = 400;
       errorBody.errors = { code: err.code, message: err.message };
+    } else if (err instanceof Error) {
+      ctx.status = 400;
+      errorBody.errors = { code: "unk", message: err.message };
     } else {
       ctx.status = 500;
-      errorBody.errors = { code: "unknown", message: "Unknown Error" };
-      console.log(err);
+      errorBody.errors = { code: "unk", message: "Unknown Error" };
     }
     ctx.body = errorBody;
   }
@@ -43,8 +45,6 @@ router.use(errorHandler);
 router.use(bodyParser());
 router.use(cheekyMiddleware);
 
-// TODO: make another handler to turn the errors into something nicer looking :3
-
 const vanityReqSchema = z.object({
   id: z
     .string()
@@ -52,25 +52,21 @@ const vanityReqSchema = z.object({
     .max(32, "Custom URL name too long"),
 });
 router.get("/id", async (ctx, next) => {
-  console.log(ctx.request);
   const { id } = vanityReqSchema.parse(ctx.request.body);
   let steamid = await steam.resolveVanity(id);
   ctx.body = { steamid };
 });
 
-// TODO: how is this going to work? maybe when I'm less tired...
-const friendsSchema = z.object({
-  steamids: z.string().array(),
-  // .nonempty("Hey man put stuff in ur array pls tysm :3"),
+const idListSchema = z.object({
+  steamids: schema.SteamID64Schema.array().nonempty(),
 });
 router.get("/friends", async (ctx, next) => {
-  console.log(ctx.request.body);
-  const { steamids } = friendsSchema.parse(ctx.request.body);
+  const { steamids } = idListSchema.parse(ctx.request.body);
   const parsedIds: Array<object> = [];
 
   for (let id of steamids) {
     try {
-      let parseResult = SteamID64Schema.parse(id);
+      let parseResult = schema.SteamID64Schema.parse(id);
       let friendResult = await steam.getFriends(parseResult);
       parsedIds.push({ success: true, friends: friendResult });
     } catch (err) {
@@ -90,4 +86,12 @@ router.get("/friends", async (ctx, next) => {
     }
   }
   ctx.body = { steamids: parsedIds };
+});
+
+router.get("/summaries", async (ctx, next) => {
+  const { steamids } = idListSchema.parse(ctx.request.body);
+
+  let summaryResult = await steam.getUserSummaries(steamids);
+
+  ctx.body = { summaries: summaryResult };
 });

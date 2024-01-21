@@ -2,7 +2,7 @@ import { z } from "zod";
 import SteamID from "steamid";
 import { isEmpty } from "../utils.js";
 
-// TODO: add some messenges here
+// TODO: catch steam id error
 export const SteamID64Schema = z
   .string()
   .refine((str) => new SteamID(str).isValidIndividual())
@@ -36,14 +36,22 @@ export const FriendsResponseSchema = z.object({
       message: "User does not have public friends.",
     }),
 });
+// const literalSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+// type Literal = z.infer<typeof literalSchema>;
+export type UserSummaryResponse = z.infer<typeof UserSummaryResponseSchema>;
 
 export const UserSummaryResponseSchema = z.object({
   response: z.object({
     players: z
       .object({
         steamid: z.string(),
+        // personaname: z.string(),
+        // profileurl: z.string(),
+        // avatarfull: z.string(),
+        // personastate: z.number(),
+        // communityvisibilitystate: z.number(),
+        // lastlogoff: z.number(),
       })
-      // zzzz honk mimimimiimmimi so lazyyy
       .passthrough()
       .array(),
   }),

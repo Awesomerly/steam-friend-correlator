@@ -37,9 +37,8 @@ export async function getFriends(id: string): Promise<Array<string>> {
   return friends.map((friend) => friend.steamid);
 }
 
-export async function getUserSummaries(
-  idArr: Array<string>,
-): Promise<{ [key: string]: object }> {
+// TODO: figure out type annotation
+export async function getUserSummaries(idArr: Array<string>) {
   if (idArr.length > 100) {
     throw new ValidationError(
       "invalid_data",
@@ -56,10 +55,5 @@ export async function getUserSummaries(
 
   let resp = await utils.zodFetch(url, schema.UserSummaryResponseSchema);
 
-  let obj: { [key: string]: object } = {};
-  resp.response.players.forEach((entry) => {
-    obj[entry.steamid] = entry;
-  });
-
-  return obj;
+  return resp.response.players;
 }
