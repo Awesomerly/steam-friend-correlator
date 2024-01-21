@@ -1,7 +1,6 @@
-import { ValidationError } from "./error.js";
+import { ValidationError } from "../error.js";
 import "dotenv/config";
-import * as schema from "./steam-schema.js";
-// import SteamID from "steamid";
+import * as schema from "./schema.js";
 
 const apiUrl = "http://api.steampowered.com/ISteamUser";
 

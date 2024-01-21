@@ -5,11 +5,11 @@ const isEmpty = (obj: object | {}) => {
   return Object.keys(obj).length === 0;
 };
 
+// TODO: add some messenges here
 export const SteamID64Schema = z
   .string()
-  .transform((str) => new SteamID(str))
-  .refine((id) => id.isValidIndividual())
-  .transform((id) => id.getSteamID64());
+  .refine((str) => new SteamID(str).isValidIndividual())
+  .transform((str) => new SteamID(str).getSteamID64());
 
 // TODO: figure out what to put in zod error codes:
 export const VanityResponseSchema = z.object({
