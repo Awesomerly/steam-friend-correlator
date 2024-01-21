@@ -1,6 +1,7 @@
-import { ValidationError } from "../error.js";
+import { ValidationError } from "../utils.js";
 import "dotenv/config";
 import * as schema from "./schema.js";
+import * as utils from "../utils.js";
 
 const apiUrl = "http://api.steampowered.com/ISteamUser";
 
@@ -11,25 +12,17 @@ const key: string =
     throw new Error("Steam API Key not specified in .env :(");
   })();
 
-// TODO: add proper error stuff to this
-
-export async function resolveVanity(vanity: string) {
+export async function resolveVanity(vanity: string): Promise<string> {
   let url = new URL(apiUrl + "/ResolveVanityURL/v0001/");
   url.searchParams.append("key", key);
   url.searchParams.append("vanityurl", vanity);
 
-  let resp = await fetch(url)
-    .then((resp) => resp.json())
-    .catch(() => {
-      throw new ValidationError(400, "The vanity string is invalid");
-    });
+  let resp = await utils.zodFetch(url, schema.VanityResponseSchema);
 
-  let validated = schema.VanityResponseSchema.parse(resp);
-
-  return validated.response.steamid;
+  return resp.response.steamid;
 }
 
-export async function getFriends(id: string) {
+export async function getFriends(id: string): Promise<Array<string>> {
   let id64 = schema.SteamID64Schema.parse(id);
 
   let url = new URL(apiUrl + "/GetFriendList/v0001/");
@@ -37,27 +30,22 @@ export async function getFriends(id: string) {
   url.searchParams.append("steamid", id64);
   url.searchParams.append("relationship", "friend");
 
-  let resp = await fetch(url)
-    .then((resp) => resp.json())
-    .catch(() => {
-      throw new ValidationError(400, "Unable to parse json response");
-    });
-  let validated = schema.FriendsResponseSchema.parse(resp);
+  let resp = await utils.zodFetch(url, schema.FriendsResponseSchema);
 
   // TODO: do something with friends_since
-  let friends = validated.friendslist.friends.map((friend) => friend.steamid);
-  return friends;
+  let friends = resp.friendslist.friends;
+  return friends.map((friend) => friend.steamid);
 }
 
-export async function getUserSummaries(idArr: Array<string>) {
+export async function getUserSummaries(
+  idArr: Array<string>,
+): Promise<{ [key: string]: object }> {
   if (idArr.length > 100) {
     throw new ValidationError(
-      400,
+      "invalid_data",
       "YOU CAN'T HAVE MORE THAN 100 NAMES BLAHHHH!!! BECAUSE I SAID SO!!!",
     );
   }
-
-  // let IdArrSchema = z.array(schema.SteamID64Schema);
 
   let id64Arr = schema.SteamID64Schema.array().parse(idArr);
 
@@ -66,14 +54,10 @@ export async function getUserSummaries(idArr: Array<string>) {
   url.searchParams.append("key", key);
   url.searchParams.append("steamids", id64Arr.join(","));
 
-  let resp = await fetch(url)
-    .then((resp) => resp.json())
-    .catch(() => {
-      throw new ValidationError(400, "Unable to parse json response");
-    });
-  let validated = schema.UserSummarySchema.parse(resp).response.players;
+  let resp = await utils.zodFetch(url, schema.UserSummaryResponseSchema);
+
   let obj: { [key: string]: object } = {};
-  validated.forEach((entry) => {
+  resp.response.players.forEach((entry) => {
     obj[entry.steamid] = entry;
   });
 

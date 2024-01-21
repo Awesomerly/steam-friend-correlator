@@ -1,7 +1,16 @@
 {
   "extends": "@tsconfig/node-lts/tsconfig.json",
   "compilerOptions": {
-    "outDir": "./built"
+    "outDir": "./built",
+    /* Thanks Matt Pocock */
+    /* General */
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    /* Strictness */
+    "noUncheckedIndexedAccess": true
   },
   "include": ["./src/**/*"]
 }

@@ -1,9 +1,6 @@
 import { z } from "zod";
 import SteamID from "steamid";
-
-const isEmpty = (obj: object | {}) => {
-  return Object.keys(obj).length === 0;
-};
+import { isEmpty } from "../utils.js";
 
 // TODO: add some messenges here
 export const SteamID64Schema = z
@@ -24,8 +21,6 @@ export const VanityResponseSchema = z.object({
     }),
 });
 
-export type VanityResponse = z.infer<typeof VanityResponseSchema>;
-
 export const FriendsResponseSchema = z.object({
   friendslist: z
     .object({
@@ -42,7 +37,7 @@ export const FriendsResponseSchema = z.object({
     }),
 });
 
-export const UserSummarySchema = z.object({
+export const UserSummaryResponseSchema = z.object({
   response: z.object({
     players: z
       .object({
