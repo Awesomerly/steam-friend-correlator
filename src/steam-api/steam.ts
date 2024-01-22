@@ -42,7 +42,7 @@ export async function getUserSummaries(idArr: Array<string>) {
   if (idArr.length > 100) {
     throw new ValidationError(
       "invalid_data",
-      "YOU CAN'T HAVE MORE THAN 100 NAMES BLAHHHH!!! BECAUSE I SAID SO!!!",
+      "YOU CAN'T HAVE MORE THAN 100 NAMES BLAHHHH!!! BECAUSE I SAID SO!!!"
     );
   }
 

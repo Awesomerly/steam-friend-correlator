@@ -17,7 +17,7 @@ export const isEmpty = (obj: object | {}) => {
 // https://www.youtube.com/watch?v=dLPgQRbVquo
 export async function zodFetch<TData>(
   url: string | URL,
-  schema: z.Schema<TData>,
+  schema: z.Schema<TData>
 ): Promise<TData> {
   let promisey = fetch(url)
     .then((res) => res.json())
@@ -28,7 +28,7 @@ export async function zodFetch<TData>(
       if (err instanceof SyntaxError) {
         throw new ValidationError(
           "parse_failure",
-          "JSON Body could not be parsed",
+          "JSON Body could not be parsed"
         );
       } else {
         throw err;
