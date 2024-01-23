@@ -1,6 +1,6 @@
-import Koa from "koa";
-import * as steam from "./steam-api/steam.js";
-import { router } from "./api.js";
+import Koa from 'koa';
+import * as steam from './steam-api/steam.js';
+import { router } from './api.js';
 
 const app = new Koa();
 app.use(router.routes());

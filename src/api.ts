@@ -1,10 +1,10 @@
-import Router from "@koa/router";
-import bodyParser from "koa-bodyparser";
-import { z, ZodError } from "zod";
-import * as steam from "./steam-api/steam.js";
-import type { Context, Next } from "koa";
-import { ValidationError } from "./utils.js";
-import * as schema from "./steam-api/schema.js";
+import Router from '@koa/router';
+import bodyParser from 'koa-bodyparser';
+import { z, ZodError } from 'zod';
+import * as steam from './steam-api/steam.js';
+import type { Context, Next } from 'koa';
+import { ValidationError } from './utils.js';
+import * as schema from './steam-api/schema.js';
 
 async function errorHandler(ctx: Context, next: Next) {
   try {
@@ -12,7 +12,7 @@ async function errorHandler(ctx: Context, next: Next) {
   } catch (err) {
     console.log(err);
 
-    let errorBody: { [key: string]: object } = {};
+    const errorBody: { [key: string]: object } = {};
     if (err instanceof ZodError) {
       errorBody.errors = err.errors.map((err) => {
         return { code: err.code, message: err.message, path: err.path };
@@ -22,22 +22,22 @@ async function errorHandler(ctx: Context, next: Next) {
       errorBody.errors = { code: err.code, message: err.message };
     } else if (err instanceof Error) {
       ctx.status = 400;
-      errorBody.errors = { code: "unk", message: err.message };
+      errorBody.errors = { code: 'unk', message: err.message };
     } else {
       ctx.status = 500;
-      errorBody.errors = { code: "unk", message: "Unknown Error" };
+      errorBody.errors = { code: 'unk', message: 'Unknown Error' };
     }
     ctx.body = errorBody;
   }
 }
 
 async function cheekyMiddleware(ctx: Context, next: Next) {
-  ctx.set({ "X-Made-You-Look": "You Just Lost The Game" });
+  ctx.set({ 'X-Made-You-Look': 'You Just Lost The Game' });
   await next();
 }
 
 export const router = new Router();
-router.prefix("/api");
+router.prefix('/api');
 router.use(errorHandler);
 router.use(bodyParser());
 router.use(cheekyMiddleware);
@@ -45,26 +45,26 @@ router.use(cheekyMiddleware);
 const vanityReqSchema = z.object({
   id: z
     .string()
-    .min(3, "Custom URL name too short")
-    .max(32, "Custom URL name too long"),
+    .min(3, 'Custom URL name too short')
+    .max(32, 'Custom URL name too long'),
 });
-router.get("/id", async (ctx, next) => {
+router.get('/id', async (ctx) => {
   const { id } = vanityReqSchema.parse(ctx.request.body);
-  let steamid = await steam.resolveVanity(id);
+  const steamid = await steam.resolveVanity(id);
   ctx.body = { steamid };
 });
 
 const idListSchema = z.object({
   steamids: schema.SteamID64Schema.array().nonempty(),
 });
-router.get("/friends", async (ctx, next) => {
+router.get('/friends', async (ctx) => {
   const { steamids } = idListSchema.parse(ctx.request.body);
   const parsedIds: Array<object> = [];
 
-  for (let id of steamids) {
+  for (const id of steamids) {
     try {
-      let parseResult = schema.SteamID64Schema.parse(id);
-      let friendResult = await steam.getFriends(parseResult);
+      const parseResult = schema.SteamID64Schema.parse(id);
+      const friendResult = await steam.getFriends(parseResult);
       parsedIds.push({ success: true, friends: friendResult });
     } catch (err) {
       if (err instanceof ZodError) {
@@ -77,7 +77,7 @@ router.get("/friends", async (ctx, next) => {
       } else {
         parsedIds.push({
           success: false,
-          errors: [{ code: "unk", error: "Unknown parsing error" }],
+          errors: [{ code: 'unk', error: 'Unknown parsing error' }],
         });
       }
     }
@@ -85,10 +85,10 @@ router.get("/friends", async (ctx, next) => {
   ctx.body = { steamids: parsedIds };
 });
 
-router.get("/summaries", async (ctx, next) => {
+router.get('/summaries', async (ctx) => {
   const { steamids } = idListSchema.parse(ctx.request.body);
 
-  let summaryResult = await steam.getUserSummaries(steamids);
+  const summaryResult = await steam.getUserSummaries(steamids);
 
   ctx.body = { summaries: summaryResult };
 });

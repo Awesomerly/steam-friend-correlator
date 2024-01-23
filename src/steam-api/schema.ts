@@ -1,6 +1,6 @@
-import { z } from "zod";
-import SteamID from "steamid";
-import { isEmpty } from "../utils.js";
+import { z } from 'zod';
+import SteamID from 'steamid';
+import { isEmpty } from '../utils.js';
 
 // TODO: catch steam id error
 export const SteamID64Schema = z
@@ -13,11 +13,11 @@ export const VanityResponseSchema = z.object({
   response: z
     .object({
       steamid: z.string({
-        required_error: "Vanity name search unsuccessful",
+        required_error: 'Vanity name search unsuccessful',
       }),
     })
     .refine((obj) => !isEmpty(obj), {
-      message: "Invalid vanity input",
+      message: 'Invalid vanity input',
     }),
 });
 
@@ -33,7 +33,7 @@ export const FriendsResponseSchema = z.object({
         .array(),
     })
     .refine((obj) => !isEmpty(obj), {
-      message: "User does not have public friends.",
+      message: 'User does not have public friends.',
     }),
 });
 

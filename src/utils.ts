@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import type { z } from 'zod';
 
 export class ValidationError extends Error {
   code: string;
@@ -9,7 +9,7 @@ export class ValidationError extends Error {
   }
 }
 
-export const isEmpty = (obj: object | {}) => {
+export const isEmpty = (obj: object | Record<string, never>) => {
   return Object.keys(obj).length === 0;
 };
 
@@ -19,20 +19,16 @@ export async function zodFetch<TData>(
   url: string | URL,
   schema: z.Schema<TData>
 ): Promise<TData> {
-  let promisey = fetch(url)
+  return fetch(url)
     .then((res) => res.json())
     .then((res) => {
       return schema.parse(res);
     })
     .catch((err) => {
       if (err instanceof SyntaxError) {
-        throw new ValidationError(
-          "parse_failure",
-          "JSON Body could not be parsed"
-        );
+        throw new ValidationError('parse_failure', 'JSON Body could not be parsed');
       } else {
         throw err;
       }
     });
-  return promisey;
 }
