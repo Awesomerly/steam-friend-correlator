@@ -13,27 +13,27 @@ const key: string =
   })();
 
 export async function resolveVanity(vanity: string): Promise<string> {
-  let url = new URL(apiUrl + '/ResolveVanityURL/v0001/');
+  const url = new URL(apiUrl + '/ResolveVanityURL/v0001/');
   url.searchParams.append('key', key);
   url.searchParams.append('vanityurl', vanity);
 
-  let resp = await utils.zodFetch(url, schema.VanityResponseSchema);
+  const resp = await utils.zodFetch(url, schema.VanityResponseSchema);
 
   return resp.response.steamid;
 }
 
 export async function getFriends(id: string): Promise<Array<string>> {
-  let id64 = schema.SteamID64Schema.parse(id);
+  const id64 = schema.SteamID64Schema.parse(id);
 
-  let url = new URL(apiUrl + '/GetFriendList/v0001/');
+  const url = new URL(apiUrl + '/GetFriendList/v0001/');
   url.searchParams.append('key', key);
   url.searchParams.append('steamid', id64);
   url.searchParams.append('relationship', 'friend');
 
-  let resp = await utils.zodFetch(url, schema.FriendsResponseSchema);
+  const resp = await utils.zodFetch(url, schema.FriendsResponseSchema);
 
   // TODO: do something with friends_since
-  let friends = resp.friendslist.friends;
+  const friends = resp.friendslist.friends;
   return friends.map((friend) => friend.steamid);
 }
 
@@ -46,14 +46,14 @@ export async function getUserSummaries(idArr: Array<string>) {
     );
   }
 
-  let id64Arr = schema.SteamID64Schema.array().parse(idArr);
+  const id64Arr = schema.SteamID64Schema.array().parse(idArr);
 
-  let url = new URL(apiUrl + '/GetPlayerSummaries/v2/');
+  const url = new URL(apiUrl + '/GetPlayerSummaries/v2/');
 
   url.searchParams.append('key', key);
   url.searchParams.append('steamids', id64Arr.join(','));
 
-  let resp = await utils.zodFetch(url, schema.UserSummaryResponseSchema);
+  const resp = await utils.zodFetch(url, schema.UserSummaryResponseSchema);
 
   return resp.response.players;
 }
