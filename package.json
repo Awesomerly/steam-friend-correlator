@@ -25,11 +25,11 @@
     "@types/koa-bodyparser": "^4.3.12",
     "@types/node": "^20.11.5",
     "@types/steamid": "^2.0.3",
-    "@typescript-eslint/eslint-plugin": "^6.19.1",
-    "@typescript-eslint/parser": "^6.19.1",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.2.4",
-    "typescript": "^5.3.3"
+    "@typescript-eslint/eslint-plugin": "6.19.1",
+    "@typescript-eslint/parser": "6.19.1",
+    "eslint": "8.56.0",
+    "eslint-config-prettier": "9.1.0",
+    "prettier": "3.2.4",
+    "typescript": "5.3.3"
   }
 }
